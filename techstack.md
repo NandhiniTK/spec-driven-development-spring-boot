@@ -91,7 +91,7 @@ spring:
 ### API Documentation
 - **Tool**: Swagger/OpenAPI 3.0
 - **UI**: Swagger UI (auto-generated)
-- **Access**: `http://localhost:808x/swagger-ui.html`
+- **Access**: `http://localhost:8080/swagger-ui.html`
 
 ## Security
 
@@ -108,8 +108,7 @@ spring:
 - **Unit Testing**: JUnit 5 (Jupiter)
 - **Mocking**: Mockito
 - **Integration Testing**: Spring Boot Test
-- **API Testing**: RestAssured or MockMvc
-- **Test Containers**: Testcontainers (for database integration tests)
+- **API Testing**: MockMvc + Postman
 
 ### Code Quality
 - **Code Coverage**: JaCoCo
@@ -176,7 +175,7 @@ spring:
 
 ### Utilities
 - **Lombok**: Reduce boilerplate code
-- **MapStruct**: Bean mapping (optional)
+- **MapStruct**: Bean mapping
 - **Apache Commons**: Utility functions
 
 ### HTTP Client (for inter-service communication)

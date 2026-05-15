@@ -32,54 +32,54 @@
 ### Version Control
 - [x] Initialize Git repository
 - [ ] Create initial commit
+- [ ] Push to GitHub
 
 ## 📋 Phase 2: Entity & CRUD API (Week 2-3)
 
 ### Week 2: Entity & Repository
 
-- [ ] Create Application entity with JPA annotations
-- [ ] Add fields: id, name, description, version, status, owner, technology, environment, url, metadata, createdAt, updatedAt
-- [ ] Create Status enum (ACTIVE, INACTIVE, MAINTENANCE)
-- [ ] Create Environment enum (DEV, TEST, STAGING, PROD)
-- [ ] Create ApplicationRepository (extends JpaRepository)
-- [ ] Create ApplicationRequestDTO and ApplicationResponseDTO
-- [ ] Create ApplicationMapper
+- [x] Create Application entity with JPA annotations
+- [x] Add fields: id, name, description, version, status, owner, technology, environment, url, metadata, createdAt, updatedAt
+- [x] Create Status enum (ACTIVE, INACTIVE, MAINTENANCE)
+- [x] Create Environment enum (DEV, TEST, STAGING, PROD)
+- [x] Create ApplicationRepository (extends JpaRepository)
+- [x] Create ApplicationRequestDTO and ApplicationResponseDTO
+- [x] Create ApplicationMapper (MapStruct)
 
 ### Week 3: Service & Controller
 
-- [ ] Create ApplicationService interface
-- [ ] Create ApplicationServiceImpl with CRUD methods:
-  - [ ] createApplication
-  - [ ] getApplicationById
-  - [ ] getAllApplications
-  - [ ] updateApplication
-  - [ ] deleteApplication
-- [ ] Create exception classes (ResourceNotFoundException, DuplicateResourceException)
-- [ ] Create GlobalExceptionHandler (@ControllerAdvice)
-- [ ] Create ApplicationController with endpoints:
-  - [ ] POST /api/v1/applications
-  - [ ] GET /api/v1/applications/{id}
-  - [ ] GET /api/v1/applications
-  - [ ] PUT /api/v1/applications/{id}
-  - [ ] DELETE /api/v1/applications/{id}
-- [ ] Add input validation (@Valid)
-- [ ] Add Swagger annotations
+- [x] Create ApplicationService interface
+- [x] Create ApplicationServiceImpl with CRUD methods:
+  - [x] createApplication
+  - [x] getApplicationById
+  - [x] getAllApplications
+  - [x] updateApplication
+  - [x] deleteApplication
+- [x] Create exception classes (ResourceNotFoundException, DuplicateResourceException)
+- [x] Create GlobalExceptionHandler (@ControllerAdvice)
+- [x] Create ApplicationController with endpoints:
+  - [x] POST /api/v1/applications
+  - [x] GET /api/v1/applications/{id}
+  - [x] GET /api/v1/applications
+  - [x] PUT /api/v1/applications/{id}
+  - [x] DELETE /api/v1/applications/{id}
+- [x] Add input validation (@Valid)
+- [x] Add Swagger annotations
 
 ## 📋 Phase 3: Testing (Week 4)
 
-- [ ] Unit tests for ApplicationServiceImpl (JUnit 5 + Mockito)
-- [ ] Unit tests for ApplicationRepository (@DataJpaTest)
-- [ ] Integration tests for ApplicationController (MockMvc)
-- [ ] Add JaCoCo plugin — target >80% coverage
-- [ ] API testing with Postman
+- [x] Unit tests for ApplicationServiceImpl (JUnit 5 + Mockito)
+- [x] Unit tests for ApplicationRepository (Mockito)
+- [x] Integration tests for ApplicationController (MockMvc)
+- [x] Add JaCoCo plugin — target >80% coverage (93% achieved)
+- [x] API testing with Postman (collection created)
 
 ## 📋 Phase 4: Polish (Week 5)
 
-- [ ] Code review and refactoring
-- [ ] Complete Swagger documentation
-- [ ] Update README
-- [ ] Create Postman collection
-- [ ] Final checks: all tests passing, endpoints working, Swagger UI accessible
+- [x] Code review and refactoring
+- [x] Complete Swagger documentation (OpenApiConfig + @Schema on DTOs + error schemas)
+- [x] Update README (completed project format)
+- [x] Final checks: all tests passing, endpoints working, Swagger UI accessible
 
 ## Quick Commands
 

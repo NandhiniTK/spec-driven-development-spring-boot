@@ -8,6 +8,7 @@
   - [x] techstack.md
 - [x] Initialize Application Management Service from Spring Initializr
 - [x] Set up version control (Git)
+- [ ] Push to GitHub
 - [x] Configure Gradle build file
 - [x] Install PostgreSQL locally and create database: appmanagementdb
 - [x] Configure JPA/Hibernate and application properties
@@ -15,35 +16,34 @@
 ## Phase 2: Entity & CRUD API (Week 2-3)
 
 ### Week 2: Entity & Repository
-- [ ] Design and create Application entity with JPA annotations
-- [ ] Create ApplicationRepository interface
-- [ ] Create DTOs (Request/Response)
-- [ ] Implement entity-to-DTO mappers
+- [x] Design and create Application entity with JPA annotations
+- [x] Create ApplicationRepository interface
+- [x] Create DTOs (Request/Response)
+- [x] Implement entity-to-DTO mappers (MapStruct)
 
 ### Week 3: CRUD API
-- [ ] Create Application REST controller
-- [ ] Implement Create Application API
-- [ ] Implement Get Application by ID API
-- [ ] Implement Get All Applications API
-- [ ] Implement Update Application API
-- [ ] Implement Delete Application API
-- [ ] Add input validation and error handling
-- [ ] Add API documentation (Swagger/OpenAPI)
+- [x] Create Application REST controller
+- [x] Implement Create Application API
+- [x] Implement Get Application by ID API
+- [x] Implement Get All Applications API
+- [x] Implement Update Application API
+- [x] Implement Delete Application API
+- [x] Add input validation and error handling
+- [x] Add API documentation (Swagger/OpenAPI)
 
 ## Phase 3: Testing (Week 4)
 
-- [ ] Unit tests for service layer (JUnit 5 + Mockito)
-- [ ] Unit tests for repository layer
-- [ ] Integration tests for REST APIs
-- [ ] Test coverage reporting (JaCoCo) — target >80%
-- [ ] API testing with Postman
+- [x] Unit tests for service layer (JUnit 5 + Mockito)
+- [x] Unit tests for repository layer
+- [x] Integration tests for REST APIs
+- [x] Test coverage reporting (JaCoCo) — target >80% (93% achieved)
+- [x] API testing with Postman
 
 ## Phase 4: Polish (Week 5)
 
-- [ ] Code review and refactoring
-- [ ] Complete API documentation
-- [ ] Update README
-- [ ] Create Postman collection
+- [x] Code review and refactoring
+- [x] Complete API documentation
+- [x] Update README
 
 ## Future Enhancements
 

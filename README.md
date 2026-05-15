@@ -1,16 +1,120 @@
 # Spec-Driven Development - Microservices POC
 
 ## Overview
-This project demonstrates a **Spec-Driven Development (SDD)** approach for building a microservices architecture using Java Spring Boot.
 
-## Architecture
-- **Service**: Application Management Service (Port: 8080)
-- **Framework**: Spring Boot 3.5.14, Java 17
-- **Build**: Gradle (Groovy DSL)
-- **Database**: PostgreSQL (local installation)
-- **APIs**: REST with Swagger/OpenAPI
+A **Spec-Driven Development (SDD)** project demonstrating a fully functional CRUD REST API built with Java Spring Boot. The Application Management Service manages application metadata with full validation, error handling, Swagger documentation, and 93% test coverage.
 
-## Key Specifications
+## Tech Stack
+
+| Component | Version |
+|-----------|---------|
+| Spring Boot | 3.5.14 |
+| Java | 17 |
+| Gradle | 8.x (Groovy DSL) |
+| PostgreSQL | 15+ |
+| SpringDoc OpenAPI | 2.8.17 |
+| MapStruct | 1.6.3 |
+| JaCoCo | 0.8.12 |
+
+## Project Structure
+
+```
+sdd-poc/
+├── docs/api/
+│   └── application-management-api.md   # API specification
+├── services/application-management-service/
+│   ├── src/main/java/.../applicationmanagement/
+│   │   ├── config/                     # OpenAPI configuration
+│   │   ├── controller/                 # REST controller
+│   │   ├── dto/                        # Request/Response DTOs
+│   │   ├── entity/                     # JPA entity + enums
+│   │   ├── exception/                  # Exception handling
+│   │   ├── mapper/                     # MapStruct mapper
+│   │   ├── repository/                 # Spring Data repository
+│   │   ├── service/                    # Business logic
+│   │   └── validation/                 # Custom validators
+│   ├── src/test/java/                  # Unit + integration tests
+│   ├── postman/                        # Postman collection
+│   └── build.gradle
+├── composition.md                      # Architecture design
+├── techstack.md                        # Technology stack
+├── roadmap.md                          # Development timeline
+├── IMPLEMENTATION_CHECKLIST.md         # Task tracking
+└── README.md
+```
+
+## Getting Started
+
+### Prerequisites
+
+- Java JDK 17
+- PostgreSQL 15+ (local installation)
+- IDE (IntelliJ IDEA, Eclipse, or VS Code)
+
+### Setup & Run
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd sdd-poc
+   ```
+
+2. **Create the database**
+   ```sql
+   CREATE DATABASE appmanagementdb;
+   ```
+   Default credentials: `postgres` / `postgres` (configured in `application.yml`)
+
+3. **Build**
+   ```bash
+   cd services/application-management-service
+   ./gradlew build
+   ```
+
+4. **Run**
+   ```bash
+   ./gradlew bootRun
+   ```
+
+5. **Verify**
+   - Health: http://localhost:8080/actuator/health
+   - Swagger UI: http://localhost:8080/swagger-ui.html
+
+## API Endpoints
+
+| Method | Endpoint | Description | Status |
+|--------|----------|-------------|--------|
+| POST | `/api/v1/applications` | Create application | 201 |
+| GET | `/api/v1/applications/{id}` | Get by ID | 200 |
+| GET | `/api/v1/applications` | Get all | 200 |
+| PUT | `/api/v1/applications/{id}` | Update application | 200 |
+| DELETE | `/api/v1/applications/{id}` | Delete application | 204 |
+| GET | `/actuator/health` | Health check | 200 |
+
+See `docs/api/application-management-api.md` for full API specification including request/response schemas and validation rules.
+
+## Testing
+
+```bash
+./gradlew test                    # Run all tests
+./gradlew jacocoTestReport        # Generate coverage report
+```
+
+- **33 tests** across 3 test classes
+- **93% instruction coverage** (JaCoCo, >80% enforced)
+- Coverage report: `build/reports/jacoco/test/html/index.html`
+
+| Test Class | Type | Tests |
+|------------|------|-------|
+| `ApplicationServiceImplTest` | Unit (Mockito) | 11 |
+| `ApplicationRepositoryTest` | Unit (Mockito) | 9 |
+| `ApplicationControllerTest` | Integration (MockMvc) | 13 |
+
+### Postman
+
+Import `services/application-management-service/postman/Application-Management-API.postman_collection.json` into Postman for manual API testing.
+
+## Specifications
 
 | Document | Purpose |
 |----------|---------|
@@ -19,64 +123,6 @@ This project demonstrates a **Spec-Driven Development (SDD)** approach for build
 | `techstack.md` | Technology stack & dependencies |
 | `docs/api/application-management-api.md` | Complete API specification |
 | `IMPLEMENTATION_CHECKLIST.md` | Development task tracking |
-
-## Getting Started
-
-### Prerequisites
-- Java JDK 17
-- Gradle 8.x (wrapper included)
-- PostgreSQL 15+ (local installation)
-- IDE (IntelliJ IDEA, Eclipse, or VS Code)
-
-### Initial Setup
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd sdd-poc
-   ```
-
-2. **Review Specifications**
-   - Read `composition.md` for architecture overview
-   - Check `techstack.md` for technology details
-   - Follow `roadmap.md` for development phases
-
-3. **Initialize Service from Spring Initializr**
-   - Visit https://start.spring.io
-   - Use configurations from `techstack.md`
-   - Download and extract to `services/application-management-service/`
-
-4. **Set up Database**
-   - Install PostgreSQL locally
-   - Create database: `CREATE DATABASE appmanagementdb;`
-   - Update connection details in application.yml
-
-5. **Build Service**
-   ```bash
-   cd services/application-management-service
-   ./gradlew build
-   ```
-
-6. **Run Service**
-   ```bash
-   ./gradlew bootRun
-   ```
-
-## Development
-
-Follow the roadmap in `roadmap.md`:
-1. **Week 1**: Setup and initialization
-2. **Week 2-3**: Entity, repository, service, and CRUD APIs
-3. **Week 4**: Testing (>80% coverage)
-4. **Week 5**: Polish and documentation
-
-Use `IMPLEMENTATION_CHECKLIST.md` to track progress.
-
-## Testing
-```bash
-./gradlew test                    # Run tests
-./gradlew jacocoTestReport        # Coverage report
-```
 
 ## Troubleshooting
 
@@ -87,16 +133,11 @@ taskkill /PID <process-id> /F
 ```
 
 **Database connection failed:**
-- Check PostgreSQL is running
+- Verify PostgreSQL is running
 - Verify database exists: `psql -U postgres -l`
-- Check credentials in application.yml
+- Check credentials in `application.yml`
 
 **Build failed:**
 ```bash
 ./gradlew clean build
 ```
-
-## Resources
-- [Spring Boot Docs](https://spring.io/projects/spring-boot)
-- [Spring Data JPA](https://spring.io/projects/spring-data-jpa)
-- [PostgreSQL Docs](https://www.postgresql.org/docs/)
