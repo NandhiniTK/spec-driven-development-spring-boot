@@ -8,7 +8,7 @@
   - [x] techstack.md
 - [x] Initialize Application Management Service from Spring Initializr
 - [x] Set up version control (Git)
-- [ ] Push to GitHub
+- [x] Push to GitHub
 - [x] Configure Gradle build file
 - [x] Install PostgreSQL locally and create database: appmanagementdb
 - [x] Configure JPA/Hibernate and application properties

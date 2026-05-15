@@ -31,8 +31,8 @@
 
 ### Version Control
 - [x] Initialize Git repository
-- [ ] Create initial commit
-- [ ] Push to GitHub
+- [x] Create initial commit
+- [x] Push to GitHub (https://github.com/NandhiniTK/spec-driven-development-spring-boot)
 
 ## 📋 Phase 2: Entity & CRUD API (Week 2-3)
 
