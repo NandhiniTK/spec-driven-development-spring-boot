@@ -124,6 +124,21 @@ Import `services/application-management-service/postman/Application-Management-A
 | `docs/api/application-management-api.md` | Complete API specification |
 | `IMPLEMENTATION_CHECKLIST.md` | Development task tracking |
 
+## AI-Assisted Development
+
+This project was built using an AI coding assistant (Windsurf Cascade) following the spec-driven approach. The specifications (`composition.md`, `techstack.md`, `roadmap.md`, `IMPLEMENTATION_CHECKLIST.md`, `docs/api/application-management-api.md`) serve as the single source of truth, guiding the AI through each development phase.
+
+### Sample Prompt
+
+Use this prompt pattern when starting a new phase with an AI assistant:
+
+> Let's start with phase **N** from roadmap. Ensure you read through all the md files (composition, techstack, readme, implementation_checklist, application-management-api.md). Request for acknowledgement before applying changes. If you have any open questions, please ask.
+
+This prompt ensures the AI:
+1. **Reads all specs first** before writing any code
+2. **Acknowledges the plan** so you can review and adjust before changes are applied
+3. **Asks clarifying questions** to avoid assumptions
+
 ## Troubleshooting
 
 **Port 8080 in use:**
