@@ -1,0 +1,60 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: payment-gateway-service
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/paymentgatewaydb
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          lob:
+            non_contextual_creation: true
+  
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
+# AWS SQS Configuration
+spring:
+  cloud:
+    aws:
+      region:
+        static: us-east-1
+      credentials:
+        access-key: ${AWS_ACCESS_KEY_ID:your-access-key}
+        secret-key: ${AWS_SECRET_ACCESS_KEY:your-secret-key}
+      sqs:
+        enabled: true
+
+# Payment Processing Queue
+payment:
+  queue:
+    name: payment-processing-queue
+    dlq-name: payment-processing-dlq
+    visibility-timeout: 30
+    max-receive-count: 3

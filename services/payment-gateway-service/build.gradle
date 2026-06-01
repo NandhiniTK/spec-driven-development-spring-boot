@@ -1,0 +1,81 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.14'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.nandhini.poc'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// Spring Boot Starters
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	
+	// Database
+	runtimeOnly 'org.postgresql:postgresql'
+	
+	// Lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	
+	// MapStruct
+	implementation 'org.mapstruct:mapstruct:1.6.3'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+	annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+	
+	// API Documentation
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.17'
+	
+	// AWS SQS
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter-sqs:3.1.0'
+	
+	// Resilience4j
+	implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.1.0'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	
+	// Spring Retry
+	implementation 'org.springframework.retry:spring-retry'
+	
+	// Stripe SDK
+	implementation 'com.stripe:stripe-java:24.0.0'
+	
+	// JWT (for Phase 11)
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+	
+	// PDF Generation
+	implementation 'com.itextpdf:itext7-core:8.0.2'
+	
+	// DevTools
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	
+	// Testing
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.junit.jupiter:junit-jupiter'
+	testImplementation 'org.mockito:mockito-core'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
