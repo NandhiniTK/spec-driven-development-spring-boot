@@ -17,8 +17,8 @@ import com.nandhini.poc.paymentgateway.mapper.PaymentMapper;
 import com.nandhini.poc.paymentgateway.repository.IdempotencyKeyRepository;
 import com.nandhini.poc.paymentgateway.repository.PaymentRepository;
 import com.nandhini.poc.paymentgateway.repository.PaymentTransactionRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -29,7 +29,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class PaymentServiceImpl implements PaymentService {
 
@@ -37,8 +36,21 @@ public class PaymentServiceImpl implements PaymentService {
     private final IdempotencyKeyRepository idempotencyKeyRepository;
     private final PaymentTransactionRepository paymentTransactionRepository;
     private final PaymentMapper paymentMapper;
-    private final SQSMessagePublisher sqsMessagePublisher;
+    
+    @Autowired(required = false)
+    private SQSMessagePublisher sqsMessagePublisher;
+    
     private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    
+    public PaymentServiceImpl(PaymentRepository paymentRepository,
+                              IdempotencyKeyRepository idempotencyKeyRepository,
+                              PaymentTransactionRepository paymentTransactionRepository,
+                              PaymentMapper paymentMapper) {
+        this.paymentRepository = paymentRepository;
+        this.idempotencyKeyRepository = idempotencyKeyRepository;
+        this.paymentTransactionRepository = paymentTransactionRepository;
+        this.paymentMapper = paymentMapper;
+    }
 
     @Override
     @Transactional
@@ -102,23 +114,27 @@ public class PaymentServiceImpl implements PaymentService {
             // Continue without caching - payment is already created
         }
         
-        // Publish payment message to SQS for async processing
-        try {
-            PaymentMessageDTO messageDTO = PaymentMessageDTO.builder()
-                    .paymentId(savedPayment.getId())
-                    .correlationId(org.slf4j.MDC.get("correlationId"))
-                    .build();
-            
-            sqsMessagePublisher.publishPaymentMessage(messageDTO);
-            
-            logPaymentEvent(savedPayment.getId(), "PAYMENT_QUEUED", 
-                    "Payment message published to SQS for processing");
-            
-        } catch (Exception e) {
-            log.error("Failed to publish payment message to SQS: paymentId={}", savedPayment.getId(), e);
-            logPaymentEvent(savedPayment.getId(), "PAYMENT_QUEUE_FAILED", 
-                    "Failed to publish payment message to SQS: " + e.getMessage());
-            // Don't fail the request - payment is created, will be retried
+        // Publish payment message to SQS for async processing (if SQS is enabled)
+        if (sqsMessagePublisher != null) {
+            try {
+                PaymentMessageDTO messageDTO = PaymentMessageDTO.builder()
+                        .paymentId(savedPayment.getId())
+                        .correlationId(org.slf4j.MDC.get("correlationId"))
+                        .build();
+                
+                sqsMessagePublisher.publishPaymentMessage(messageDTO);
+                
+                logPaymentEvent(savedPayment.getId(), "PAYMENT_QUEUED", 
+                        "Payment message published to SQS for processing");
+                
+            } catch (Exception e) {
+                log.error("Failed to publish payment message to SQS: paymentId={}", savedPayment.getId(), e);
+                logPaymentEvent(savedPayment.getId(), "PAYMENT_QUEUE_FAILED", 
+                        "Failed to publish payment message to SQS: " + e.getMessage());
+                // Don't fail the request - payment is created, will be retried
+            }
+        } else {
+            log.warn("SQS is disabled - payment will not be processed asynchronously: paymentId={}", savedPayment.getId());
         }
         
         return responseDTO;

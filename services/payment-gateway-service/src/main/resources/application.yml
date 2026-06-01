@@ -23,6 +23,16 @@ spring:
           lob:
             non_contextual_creation: true
   
+  cloud:
+    aws:
+      region:
+        static: us-east-1
+      credentials:
+        access-key: ${AWS_ACCESS_KEY_ID:your-access-key}
+        secret-key: ${AWS_SECRET_ACCESS_KEY:your-secret-key}
+      sqs:
+        enabled: false  # Set to true when AWS credentials are configured
+
 management:
   endpoints:
     web:
@@ -42,18 +52,6 @@ management:
     tags:
       application: payment-gateway-service
     export:
-      prometheus:
-        enabled: true
-
-springdoc:
-  api-docs:
-    path: /api-docs
-  swagger-ui:
-    path: /swagger-ui.html
-    operations-sorter: method
-
-# AWS SQS Configuration
-spring:
   cloud:
     aws:
       region:
