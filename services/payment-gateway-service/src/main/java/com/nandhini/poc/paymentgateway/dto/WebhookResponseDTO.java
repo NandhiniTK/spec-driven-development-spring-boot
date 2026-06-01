@@ -2,15 +2,12 @@ package com.nandhini.poc.paymentgateway.dto;
 
 import lombok.*;
 
-import java.util.UUID;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PaymentMessageDTO {
+public class WebhookResponseDTO {
     
-    private UUID paymentId;
-    private String correlationId;
+    private boolean received;
 }

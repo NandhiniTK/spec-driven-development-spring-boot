@@ -106,6 +106,7 @@ public class PaymentServiceImpl implements PaymentService {
         try {
             PaymentMessageDTO messageDTO = PaymentMessageDTO.builder()
                     .paymentId(savedPayment.getId())
+                    .correlationId(org.slf4j.MDC.get("correlationId"))
                     .build();
             
             sqsMessagePublisher.publishPaymentMessage(messageDTO);

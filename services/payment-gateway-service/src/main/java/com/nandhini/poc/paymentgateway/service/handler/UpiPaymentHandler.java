@@ -2,16 +2,18 @@ package com.nandhini.poc.paymentgateway.service.handler;
 
 import com.nandhini.poc.paymentgateway.entity.Payment;
 import com.nandhini.poc.paymentgateway.entity.PaymentMethod;
+import com.nandhini.poc.paymentgateway.gateway.GatewayResponse;
+import com.nandhini.poc.paymentgateway.gateway.PaymentGatewayClient;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Random;
-
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class UpiPaymentHandler implements PaymentMethodHandler {
 
-    private final Random random = new Random();
+    private final PaymentGatewayClient paymentGatewayClient;
 
     @Override
     public PaymentMethod getSupportedPaymentMethod() {
@@ -20,19 +22,20 @@ public class UpiPaymentHandler implements PaymentMethodHandler {
 
     @Override
     public boolean processPayment(Payment payment) {
-        log.info("Processing UPI payment: paymentId={}, amount={}", 
+        log.info("Processing UPI payment via gateway: paymentId={}, amount={}", 
                 payment.getId(), payment.getAmount());
         
-        // Mock implementation: 85% success rate
-        boolean success = random.nextInt(100) < 85;
+        GatewayResponse response = paymentGatewayClient.processPayment(payment);
         
-        if (success) {
-            log.info("UPI payment successful: paymentId={}", payment.getId());
-            payment.setGatewayTransactionId("upi_txn_" + System.currentTimeMillis());
+        if (response.isSuccess()) {
+            log.info("UPI payment successful: paymentId={}, txnId={}", 
+                    payment.getId(), response.getTransactionId());
+            payment.setGatewayTransactionId(response.getTransactionId());
+            return true;
         } else {
-            log.warn("UPI payment failed: paymentId={}", payment.getId());
+            log.warn("UPI payment failed: paymentId={}, error={}", 
+                    payment.getId(), response.getMessage());
+            return false;
         }
-        
-        return success;
     }
 }

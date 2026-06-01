@@ -10,15 +10,16 @@ import com.nandhini.poc.paymentgateway.repository.PaymentRepository;
 import com.nandhini.poc.paymentgateway.repository.PaymentTransactionRepository;
 import com.nandhini.poc.paymentgateway.service.handler.PaymentMethodHandler;
 import io.awspring.cloud.sqs.annotation.SqsListener;
-import jakarta.persistence.LockModeType;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Timer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,10 @@ public class PaymentProcessorService {
     private final PaymentTransactionRepository paymentTransactionRepository;
     private final List<PaymentMethodHandler> paymentMethodHandlers;
     private final ObjectMapper objectMapper;
+    private final Counter paymentSuccessCounter;
+    private final Counter paymentFailureCounter;
+    private final Counter paymentTimeoutCounter;
+    private final Timer paymentProcessingTimer;
 
     private Map<com.nandhini.poc.paymentgateway.entity.PaymentMethod, PaymentMethodHandler> handlerMap;
 
@@ -42,10 +47,18 @@ public class PaymentProcessorService {
         try {
             // Parse message
             PaymentMessageDTO messageDTO = objectMapper.readValue(message, PaymentMessageDTO.class);
+            
+            // Restore correlation ID for tracing
+            if (messageDTO.getCorrelationId() != null) {
+                org.slf4j.MDC.put("correlationId", messageDTO.getCorrelationId());
+            }
+            
             log.info("Processing payment: paymentId={}", messageDTO.getPaymentId());
             
+            // Start timer for metrics
+            Timer.Sample sample = Timer.start();
+            
             // Fetch payment with pessimistic lock (SELECT FOR UPDATE)
-            // This prevents concurrent processing by blocking other consumers until transaction commits
             Payment payment = paymentRepository.findByIdWithLock(messageDTO.getPaymentId())
                     .orElseThrow(() -> new PaymentProcessingException(
                             "Payment not found: " + messageDTO.getPaymentId()));
@@ -78,12 +91,31 @@ public class PaymentProcessorService {
                 logPaymentEvent(payment.getId(), "PAYMENT_SUCCESS", 
                         "Payment processed successfully. Gateway Transaction ID: " + payment.getGatewayTransactionId());
                 log.info("Payment processed successfully: paymentId={}", payment.getId());
+                
+                // Record success metric
+                paymentSuccessCounter.increment();
+                sample.stop(paymentProcessingTimer);
             } else {
-                payment.setStatus(PaymentStatus.FAILED);
-                paymentRepository.save(payment);
-                logPaymentEvent(payment.getId(), "PAYMENT_FAILED", 
-                        "Payment processing failed");
-                log.error("Payment processing failed: paymentId={}", payment.getId());
+                // Check if it's a timeout (circuit breaker fallback)
+                if (payment.getGatewayTransactionId() == null) {
+                    payment.setStatus(PaymentStatus.TIMEOUT);
+                    paymentRepository.save(payment);
+                    logPaymentEvent(payment.getId(), "PAYMENT_TIMEOUT", 
+                            "Payment gateway timeout - circuit breaker opened or retries exhausted");
+                    log.error("Payment timeout: paymentId={}", payment.getId());
+                    
+                    // Record timeout metric
+                    paymentTimeoutCounter.increment();
+                } else {
+                    payment.setStatus(PaymentStatus.FAILED);
+                    paymentRepository.save(payment);
+                    logPaymentEvent(payment.getId(), "PAYMENT_FAILED", 
+                            "Payment processing failed");
+                    log.error("Payment processing failed: paymentId={}", payment.getId());
+                    
+                    // Record failure metric
+                    paymentFailureCounter.increment();
+                }
                 
                 // Throw exception to trigger SQS retry/DLQ
                 throw new PaymentProcessingException("Payment processing failed for paymentId: " + payment.getId());
@@ -91,10 +123,12 @@ public class PaymentProcessorService {
             
         } catch (PaymentProcessingException e) {
             log.error("Payment processing exception: {}", e.getMessage());
-            throw e; // Re-throw to trigger SQS retry/DLQ
+            throw e;
         } catch (Exception e) {
             log.error("Unexpected error processing payment message", e);
             throw new PaymentProcessingException("Unexpected error processing payment", e);
+        } finally {
+            org.slf4j.MDC.remove("correlationId");
         }
     }
 
@@ -115,7 +149,7 @@ public class PaymentProcessorService {
         return handler;
     }
 
-    private void logPaymentEvent(java.util.UUID paymentId, String eventType, String eventData) {
+    private void logPaymentEvent(UUID paymentId, String eventType, String eventData) {
         try {
             PaymentTransaction transaction = PaymentTransaction.builder()
                     .paymentId(paymentId)
@@ -128,7 +162,6 @@ public class PaymentProcessorService {
             
         } catch (Exception e) {
             log.error("Failed to log payment event: paymentId={}, eventType={}", paymentId, eventType, e);
-            // Don't fail the main operation
         }
     }
 }
