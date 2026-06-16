@@ -1,6 +1,54 @@
 # Technology Stack
 
-## Core Technologies
+## Frontend Technologies
+
+### React Application (Application Management UI)
+
+#### Core Framework
+- **React**: 18.x
+- **Build Tool**: Vite 5.x
+- **Package Manager**: npm or yarn
+- **Node.js**: 18+ LTS
+
+#### UI & Styling
+- **CSS Framework**: Tailwind CSS 3.x
+- **Icons**: Lucide React or Heroicons
+- **Notifications**: React Hot Toast or React Toastify
+
+#### HTTP & State Management
+- **HTTP Client**: Axios 1.x
+- **State Management**: React Hooks (useState, useEffect)
+- **Form Handling**: Native React (controlled components)
+
+#### Development Tools
+- **Linting**: ESLint
+- **Formatting**: Prettier
+- **Dev Server**: Vite Dev Server (HMR enabled)
+
+#### Dependencies (package.json)
+```json
+{
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "axios": "^1.6.0",
+    "react-hot-toast": "^2.4.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.0",
+    "vite": "^5.0.0",
+    "tailwindcss": "^3.4.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "eslint": "^8.55.0",
+    "prettier": "^3.1.0"
+  }
+}
+```
+
+---
+
+## Backend Technologies
 
 ### Backend Framework
 - **Spring Boot**: 3.5.14

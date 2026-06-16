@@ -52,87 +52,90 @@
 ## Phase 5: Foundation & Setup (Week 6-7)
 
 ### Week 6: Service Initialization
-- [ ] Create payment-gateway-service from Spring Initializr
+- [x] Create payment-gateway-service from Spring Initializr
   - Group: `com.nandhini.poc`, Artifact: `payment-gateway-service`
   - Dependencies: Web, JPA, PostgreSQL, Validation, Lombok, Actuator, Security
-- [ ] Create database: `paymentgatewaydb`
-- [ ] Configure application.yml (port: 8081)
-- [ ] Add AWS SDK for SQS
-- [ ] Set up project structure and packages
+- [x] Create database: `paymentgatewaydb` (manual creation required)
+- [x] Configure application.yml (port: 8081)
+- [x] Add AWS SDK for SQS
+- [x] Set up project structure and packages
 
 ### Week 7: Core Entities & Repositories
-- [ ] Create Payment entity
-  - Fields: id (UUID), idempotencyKey, userId, amount, currency, paymentMethod, status, gatewayTransactionId, metadata (JSONB), version (@Version), timestamps
-  - Enums: PaymentStatus (PENDING, PROCESSING, SUCCESS, FAILED, TIMEOUT), PaymentMethod (CARD, UPI, WALLET, NET_BANKING)
-- [ ] Create PaymentTransaction entity (event sourcing/audit trail)
-- [ ] Create IdempotencyKey entity (unique constraint on key)
-- [ ] Create PaymentRepository, PaymentTransactionRepository, IdempotencyKeyRepository
-- [ ] Create DTOs (PaymentRequest, PaymentResponse, PaymentStatusResponse)
-- [ ] Create MapStruct mapper
+- [x] Create Payment entity
+  - Fields: id (UUID), userId, amount, currency, paymentMethod, status, gatewayTransactionId, metadata (JSONB), version (@Version), timestamps
+  - Enums: PaymentStatus (PENDING, PROCESSING, SUCCESS, FAILED, TIMEOUT, REFUNDED), PaymentMethod (CARD, UPI, WALLET, NET_BANKING), Currency (INR, USD)
+- [x] Create PaymentTransaction entity (event sourcing/audit trail)
+- [x] Create IdempotencyKey entity (unique constraint on key)
+- [x] Create PaymentRepository, PaymentTransactionRepository, IdempotencyKeyRepository
+- [x] Create DTOs (PaymentRequestDTO, PaymentResponseDTO, RefundRequestDTO)
+- [x] Create MapStruct mapper
 
 ## Phase 6: Payment Initiation API (Week 8)
 
-- [ ] Create PaymentService interface and implementation
-- [ ] Implement idempotency check (PostgreSQL-based)
+- [x] Create PaymentService interface and implementation
+- [x] Implement idempotency check (PostgreSQL-based)
   - Check/insert idempotency key with unique constraint
-  - Return cached response if key exists
-- [ ] Implement payment initiation logic
+  - Return cached response if key exists (JSON serialization with Jackson)
+- [x] Implement payment initiation logic
   - Validate request (amount > 0, valid payment method)
   - Create Payment record with PENDING status
-  - Store idempotency key with payment reference
-- [ ] Create PaymentController with endpoints:
+  - Store idempotency key with payment reference (24h TTL)
+- [x] Create PaymentController with endpoints:
   - POST /api/v1/payments (with @RequestHeader("Idempotency-Key"))
   - GET /api/v1/payments/{id}
-  - GET /api/v1/payments (paginated)
-- [ ] Add input validation (@Valid, custom validators)
-- [ ] Create exception classes (PaymentNotFoundException, DuplicatePaymentException, InvalidPaymentException)
-- [ ] Create GlobalExceptionHandler
-- [ ] Add Swagger/OpenAPI annotations
+  - GET /api/v1/payments (paginated with status filter)
+- [x] Add input validation (@Valid, custom validators)
+- [x] Create exception classes (PaymentNotFoundException, DuplicatePaymentException, InvalidPaymentException)
+- [x] Create GlobalExceptionHandler
+- [x] Add Swagger/OpenAPI annotations (OpenApiConfig + @Schema on DTOs)
 
 ## Phase 7: SQS Integration & Async Processing (Week 9)
 
 ### SQS Producer
-- [ ] Add AWS SQS dependencies (spring-cloud-aws-messaging)
-- [ ] Configure SQS client (LocalStack for local dev, AWS SQS for prod)
-- [ ] Create SQSMessagePublisher service
-- [ ] Publish payment message to SQS after payment creation
-- [ ] Add retry logic for SQS publish failures
+- [x] Add AWS SQS dependencies (spring-cloud-aws-messaging + spring-retry)
+- [x] Configure SQS client (AWS SQS for local and prod)
+- [x] Create SQSMessagePublisher service
+- [x] Publish payment message to SQS after payment creation (paymentId only)
+- [x] Add retry logic for SQS publish failures (@Retryable with exponential backoff)
 
 ### SQS Consumer
-- [ ] Create PaymentProcessorService with @SqsListener
-- [ ] Implement message consumption logic
+- [x] Create PaymentProcessorService with @SqsListener
+- [x] Implement message consumption logic
   - Fetch payment from DB
   - Validate payment status (skip if already processed)
-  - Acquire pessimistic lock (SELECT FOR UPDATE)
-- [ ] Create PaymentMethodHandler interface
-- [ ] Implement handlers for each payment method:
-  - CardPaymentHandler
-  - UpiPaymentHandler
-  - WalletPaymentHandler
-  - NetBankingPaymentHandler
-- [ ] Update payment status based on processing result
-- [ ] Handle SQS message acknowledgment/deletion
+  - Pessimistic locking via @Transactional
+- [x] Create PaymentMethodHandler interface
+- [x] Implement mock handlers for each payment method:
+  - CardPaymentHandler (80% success rate)
+  - UpiPaymentHandler (85% success rate)
+  - WalletPaymentHandler (90% success rate)
+  - NetBankingPaymentHandler (75% success rate)
+- [x] Update payment status based on processing result (SUCCESS/FAILED)
+- [x] Handle SQS message acknowledgment/deletion (throw exception for DLQ on failure)
+- [x] Log payment events to PaymentTransaction table (audit trail)
 
 ## Phase 8: External Gateway Integration (Week 10)
 
 ### Payment Gateway Clients
-- [ ] Create PaymentGatewayClient interface
-- [ ] Implement mock gateway client for testing
-- [ ] Implement Stripe client (or Razorpay)
-  - Add Stripe SDK dependency
-  - Configure API keys (externalized)
-  - Implement charge/payment intent API calls
-- [ ] Add Resilience4j for fault tolerance
-  - Circuit Breaker configuration
-  - Retry policy (exponential backoff)
-  - Timeout configuration
-  - Fallback logic
-- [ ] Create WebhookController for payment gateway callbacks
+- [x] Create PaymentGatewayClient interface
+- [x] Implement mock gateway client for testing (MockPaymentGatewayClient)
+- [x] ~~Implement Stripe client~~ (Skipped - Mock sufficient for POC)
+  - ~~Add Stripe SDK dependency~~
+  - ~~Configure API keys (externalized)~~
+  - ~~Implement charge/payment intent API calls~~
+- [x] Add Resilience4j for fault tolerance (configured in application.yml)
+  - Circuit Breaker (50% failure threshold, 60s wait, 10 calls window)
+  - Retry policy (3 attempts, exponential backoff: 500ms, 1s, 2s)
+  - Timeout configuration (10 seconds)
+  - Fallback logic (returns TIMEOUT status)
+- [x] Create WebhookController for payment gateway callbacks
   - POST /api/v1/webhooks/payment
-  - Verify webhook signature
+  - Verify webhook signature (HMAC-SHA256)
   - Update payment status based on callback
-- [ ] Handle gateway response mapping
-- [ ] Store gateway transaction ID and metadata
+- [x] Handle gateway response mapping (GatewayResponse DTO)
+- [x] Store gateway transaction ID and metadata
+- [x] Update payment handlers to use gateway client
+- [x] Handle TIMEOUT status when circuit breaker opens
 
 ## Phase 9: Concurrency & Consistency (Week 11)
 
@@ -243,15 +246,25 @@
 ## Phase 13: Observability & Production Readiness (Week 15)
 
 ### Logging & Monitoring
-- [ ] Configure structured logging (JSON format)
-- [ ] Add correlation IDs for request tracing
-- [ ] Implement custom metrics (Micrometer)
-  - Payment success/failure rate
-  - Payment processing time
-  - SQS queue depth
-  - Gateway API latency
-- [ ] Add health checks (database, SQS, payment gateway)
-- [ ] Configure alerts for critical failures
+- [x] Configure structured logging (JSON format)
+  - Logback with logstash-logback-encoder
+  - Profile-based configuration (dev: human-readable, prod: JSON)
+  - MDC support for correlation ID, userId, paymentId
+- [x] Add correlation IDs for request tracing
+  - CorrelationIdFilter for HTTP requests
+  - X-Correlation-ID header support
+  - Propagation through SQS messages
+  - MDC cleanup in finally blocks
+- [x] Implement custom metrics (Micrometer)
+  - Payment success/failure/timeout counters
+  - Payment processing time timer
+  - Gateway API latency timer
+  - Prometheus endpoint enabled
+- [x] Add health checks (database, SQS, payment gateway)
+  - Custom PaymentGatewayHealthIndicator
+  - Custom SqsHealthIndicator with queue depth
+  - Liveness and readiness probes
+- [x] Configure alerts for critical failures (basic logging setup)
 
 ### Documentation
 - [ ] Complete Swagger/OpenAPI documentation
@@ -273,6 +286,60 @@
 - [ ] Security audit
 - [ ] Performance benchmarking
 - [ ] Update IMPLEMENTATION_CHECKLIST.md
+
+---
+
+## Phase 14: React UI for Application Management (Week 16)
+
+### Frontend Setup
+- [ ] Initialize React app with Vite
+- [ ] Set up project structure (components, services, utils)
+- [ ] Configure Tailwind CSS for styling
+- [ ] Add Axios for API calls
+- [ ] Configure environment variables (.env for API base URL)
+
+### Application UI Components
+- [ ] Create Application Form Component
+  - Application name input
+  - Description textarea
+  - Customer ID input
+  - Submit button
+  - Form validation (required fields)
+  - Clear/Reset button
+- [ ] Create Applications Table Component
+  - Display all applications in table format
+  - Columns: ID, Name, Description, Customer ID, Created Date, Updated Date
+  - Responsive table design
+  - Refresh button
+  - Empty state message
+- [ ] Create single-page layout
+  - Header with title "Application Management"
+  - Form section at top
+  - Table section below
+  - No authentication/login required
+
+### API Integration
+- [ ] Create API service layer (services/applicationService.js)
+  - POST /api/applications (create application)
+  - GET /api/applications (get all applications)
+- [ ] Handle API errors and loading states
+- [ ] Add toast notifications for success/error messages
+- [ ] Implement auto-refresh after creating application
+
+### UI/UX Features
+- [ ] Responsive design (mobile-friendly)
+- [ ] Loading spinner during API calls
+- [ ] Success toast on application creation
+- [ ] Error toast on API failures
+- [ ] Disable submit button during submission
+- [ ] Auto-clear form after successful submission
+- [ ] Format dates in table (human-readable)
+
+### Build & Deployment
+- [ ] Create production build
+- [ ] Configure CORS in Application Management Service backend
+- [ ] Add README for frontend setup instructions
+- [ ] Test with backend running on localhost:8080
 
 ---
 
