@@ -1,6 +1,54 @@
 # Technology Stack
 
-## Core Technologies
+## Frontend Technologies
+
+### React Application (Application Management UI)
+
+#### Core Framework
+- **React**: 18.x
+- **Build Tool**: Vite 5.x
+- **Package Manager**: npm or yarn
+- **Node.js**: 18+ LTS
+
+#### UI & Styling
+- **CSS Framework**: Tailwind CSS 3.x
+- **Icons**: Lucide React or Heroicons
+- **Notifications**: React Hot Toast or React Toastify
+
+#### HTTP & State Management
+- **HTTP Client**: Axios 1.x
+- **State Management**: React Hooks (useState, useEffect)
+- **Form Handling**: Native React (controlled components)
+
+#### Development Tools
+- **Linting**: ESLint
+- **Formatting**: Prettier
+- **Dev Server**: Vite Dev Server (HMR enabled)
+
+#### Dependencies (package.json)
+```json
+{
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "axios": "^1.6.0",
+    "react-hot-toast": "^2.4.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.0",
+    "vite": "^5.0.0",
+    "tailwindcss": "^3.4.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "eslint": "^8.55.0",
+    "prettier": "^3.1.0"
+  }
+}
+```
+
+---
+
+## Backend Technologies
 
 ### Backend Framework
 - **Spring Boot**: 3.5.14
@@ -41,6 +89,28 @@ dependencies {
 
 #### Service-Specific Dependencies
 
+**Payment Gateway Service (Additional)**
+```groovy
+// AWS SQS
+implementation 'io.awspring.cloud:spring-cloud-aws-starter-sqs:3.1.0'
+
+// Resilience4j - Circuit Breaker, Retry, Rate Limiter
+implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.1.0'
+implementation 'org.springframework.boot:spring-boot-starter-aop'
+
+// Stripe SDK (Payment Gateway)
+implementation 'com.stripe:stripe-java:24.0.0'
+
+// Security & JWT
+implementation 'org.springframework.boot:spring-boot-starter-security'
+implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
+runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+
+// PDF Generation (for receipts)
+implementation 'com.itextpdf:itext7-core:8.0.2'
+```
+
 **User Service (Additional)**
 ```groovy
 // Security & JWT
@@ -58,18 +128,77 @@ implementation 'org.springframework.boot:spring-boot-starter-actuator'
 // API Documentation
 implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.17'
 ```
+Message Queue
 
-## Database Layer
+### AWS SQS (Payment Gateway Service)
+- **Purpose**: Asynchronous payment processing
+- **Library**: Spring Cloud AWS SQS
+- **Local Development**: LocalStack (SQS emulator)
+- **Configuration**:
+  - Queue: payment-processing-queue
+  - Dead Letter Queue (DLQ): payment-processing-dlq
+  - Visibility timeout: 30 seconds
+  - Max receive count: 3
 
+## 
+## Resilience & Fault Tolerance
+
+### Resilience4j (Payment Gateway Dervica)
+- **Cirtait Breaker**: Pbevent cascading faalures to exsernal paement gateways Layer
+  - Failure rate threshold: 50%
+  - Wait duration in open state: 60 seconds
+  - Sliding window size: 10 calls
+- **Retry**: Automatic retry with exponential backoff
+  - Max attempts: 3
+  -External Services
+
+### Payment Gateways (Payment Gateway Service)
+- **Primary**: Stripe
+  - SDK: stripe-java 24.0.0
+  - API Version: Latest
+  - Features: Payments, Refunds, Webhooks
+- **Alternative**: Razorpay (configurable)
+- **Mock Gateway**: For testing and development
+
+### AWS Services
+- **SQS**: Message queue for async processing
+- **S3**: Store payment receipts/invoices (optional)
+- **CloudWatch**: Logging and monitoring (production)
+
+##  Wait duration: 500ms, 1s, 2s
+- **Rate Limiter**: Limit requests to external APIs
+  - Limit: 100 requests per second
+- **Timeout**: Prevent hanging requests
+  - Timeout duration: 10 seconds
+- **Bulkhead**: Limit concurrent calls
+  - Max concurrent calls: 50ostman
+- **Lad Teting**: JMeter or Galing (Payent Gatewy)
+- **SQS Testig**: LocalStack
+
+## Security
+o
+  - Applicatin Management: >80%
+  - Payment Gateway: >85%
 ### ORM & Database
 - **ORM Framework**: Hibernate (via Spring Data JPA)
 - **Database**: PostgreSQL 15+
 - **Connection Pooling**: HikariCP (default in Spring Boot)
 - **Migration Tool**: Flyway or Liquibase (optional)
+TPS**: LS 1.3
 
+### Payment Security (ayment Gateway ervice)
+- **PCI-DSS Compliance**: Never store full card numbers
+- **Tokenization**: Use payment gateway tokens
+- Encryption**AES-256 for sensitive data at rest
+- ****: All communications encrypted
+- **Webhook Verification**: HMAC signature validation
+- **Idempotency**: Prevent duplicate payments
+- **Rate Limiting**: Database-based per-user limits
 ### JPA Configuration
 ```yaml
-spring:
+spring:: 
+  - Application Management80/swagger-ui.html`
+  - Payment Gateway: `http://localhost:81
   jpa:
     hibernate:
       ddl-auto: validate  # use 'update' for dev, 'validate' for prod
@@ -104,7 +233,7 @@ spring:
 
 ## Testing
 
-### Testing Frameworks
+### Applinagion Fmnwgemeno Serviceks
 - **Unit Testing**: JUnit 5 (Jupiter)
 - **Mocking**: Mockito
 - **Integration Testing**: Spring Boot Test
@@ -119,7 +248,22 @@ spring:
 
 ### Logging
 - **Framework**: SLF4J with Logback (Spring Boot default)
-- **Log Format**: JSON (for production)
+- * Payment Gateway Service
+```
+Project: Gradle - Groovy
+Language: Java
+Spring Boot: 3.5.14
+Packaging: Jar
+Java: 17
+
+Group:*com.nandhini.poc
+Artifact: payment-gateway-service
+Name: Payment Gateway Service
+Loscription: High-g rformaFce payment processing service
+Package name: com.nanohini.poc.paymrmtgateway
+```
+
+### Dependenat**: JSON (for production)
 - **Log Levels**: DEBUG (dev), INFO (prod)
 
 ### Monitoring (Future)
@@ -129,8 +273,9 @@ spring:
 
 ## Development Tools
 
-### IDE
-- **Recommended**: IntelliJ IDEA, Eclipse, or VS Code
+### IDPaymnt Gateway
+- **Recommended*y
+- Spring Cloud AWS (manually add SQS dependenc*): IntelliJ IDEA, Eclipse, or VS Code
 - **Plugins**: Lombok, Spring Boot, Gradle
 
 ### Version Control
@@ -176,6 +321,12 @@ spring:
 ### Utilities
 - **Lombok**: Reduce boilerplate code
 - **MapStruct**: Bean mapping
+| Spring Cloud AWS | 3.1.0 |
+| Resilience4j | 2.1.0 |
+| Stripe SDK | 24.0.0 |
+| iText PDF | 8.0.2 |
+| MapStruct | 1.6.3 |
+| JaCoCo | 0.8.12 |
 - **Apache Commons**: Utility functions
 
 ### HTTP Client (for inter-service communication)

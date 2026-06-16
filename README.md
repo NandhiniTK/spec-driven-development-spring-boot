@@ -2,10 +2,25 @@
 
 ## Overview
 
-A **Spec-Driven Development (SDD)** project demonstrating a fully functional CRUD REST API built with Java Spring Boot. The Application Management Service manages application metadata with full validation, error handling, Swagger documentation, and 93% test coverage.
+A **Spec-Driven Development (SDD)** project demonstrating a full-stack application with:
+- **Frontend**: React UI for application management
+- **Backend**: Microservices architecture with Spring Boot
+- **Services**: Application Management Service & Payment Gateway Service
+
+The Application Management Service provides CRUD operations with full validation, error handling, Swagger documentation, and 93% test coverage. A React UI provides a user-friendly interface for creating and viewing applications.
 
 ## Tech Stack
 
+### Frontend
+| Component | Version |
+|-----------|---------|
+| React | 18.x |
+| Vite | 5.x |
+| Tailwind CSS | 3.x |
+| Axios | 1.x |
+| Node.js | 18+ LTS |
+
+### Backend
 | Component | Version |
 |-----------|---------|
 | Spring Boot | 3.5.14 |
@@ -20,26 +35,40 @@ A **Spec-Driven Development (SDD)** project demonstrating a fully functional CRU
 
 ```
 sdd-poc/
-├── docs/api/
-│   └── application-management-api.md   # API specification
-├── services/application-management-service/
-│   ├── src/main/java/.../applicationmanagement/
-│   │   ├── config/                     # OpenAPI configuration
-│   │   ├── controller/                 # REST controller
-│   │   ├── dto/                        # Request/Response DTOs
-│   │   ├── entity/                     # JPA entity + enums
-│   │   ├── exception/                  # Exception handling
-│   │   ├── mapper/                     # MapStruct mapper
-│   │   ├── repository/                 # Spring Data repository
-│   │   ├── service/                    # Business logic
-│   │   └── validation/                 # Custom validators
-│   ├── src/test/java/                  # Unit + integration tests
-│   ├── postman/                        # Postman collection
-│   └── build.gradle
-├── composition.md                      # Architecture design
-├── techstack.md                        # Technology stack
-├── roadmap.md                          # Development timeline
-├── IMPLEMENTATION_CHECKLIST.md         # Task tracking
+├── docs/
+│   ├── api/
+│   │   ├── application-management-api.md   # API specification
+│   │   └── payment-gateway-api.md          # Payment API spec
+│   └── ui/
+│       └── application-management-ui.md    # UI specification
+├── ui/
+│   └── application-management-ui/          # React application
+│       ├── src/
+│       │   ├── components/                 # React components
+│       │   ├── services/                   # API service layer
+│       │   └── App.jsx                     # Main app component
+│       ├── package.json
+│       └── README.md
+├── services/
+│   ├── application-management-service/
+│   │   ├── src/main/java/.../applicationmanagement/
+│   │   │   ├── config/                     # OpenAPI, CORS config
+│   │   │   ├── controller/                 # REST controller
+│   │   │   ├── dto/                        # Request/Response DTOs
+│   │   │   ├── entity/                     # JPA entity + enums
+│   │   │   ├── exception/                  # Exception handling
+│   │   │   ├── mapper/                     # MapStruct mapper
+│   │   │   ├── repository/                 # Spring Data repository
+│   │   │   ├── service/                    # Business logic
+│   │   │   └── validation/                 # Custom validators
+│   │   ├── src/test/java/                  # Unit + integration tests
+│   │   ├── postman/                        # Postman collection
+│   │   └── build.gradle
+│   └── payment-gateway-service/            # Payment service
+├── composition.md                          # Architecture design
+├── techstack.md                            # Technology stack
+├── roadmap.md                              # Development timeline
+├── IMPLEMENTATION_CHECKLIST.md             # Task tracking
 └── README.md
 ```
 
@@ -47,11 +76,12 @@ sdd-poc/
 
 ### Prerequisites
 
-- Java JDK 17
-- PostgreSQL 15+ (local installation)
-- IDE (IntelliJ IDEA, Eclipse, or VS Code)
+- **Frontend**: Node.js 18+ LTS, npm or yarn
+- **Backend**: Java JDK 17
+- **Database**: PostgreSQL 15+ (local installation)
+- **IDE**: IntelliJ IDEA, Eclipse, or VS Code
 
-### Setup & Run
+### Backend Setup & Run
 
 1. **Clone the repository**
    ```bash
@@ -65,20 +95,51 @@ sdd-poc/
    ```
    Default credentials: `postgres` / `postgres` (configured in `application.yml`)
 
-3. **Build**
+3. **Build & Run Backend**
    ```bash
    cd services/application-management-service
    ./gradlew build
-   ```
-
-4. **Run**
-   ```bash
    ./gradlew bootRun
    ```
 
-5. **Verify**
+4. **Verify Backend**
    - Health: http://localhost:8080/actuator/health
    - Swagger UI: http://localhost:8080/swagger-ui.html
+
+### Frontend Setup & Run
+
+1. **Install dependencies**
+   ```bash
+   cd ui/application-management-ui
+   npm install
+   ```
+
+2. **Run Development Server**
+   ```bash
+   npm run dev
+   ```
+
+3. **Access UI**
+   - Application UI: http://localhost:5173
+   - Create applications and view them in a table
+
+### Full Stack Development
+
+Run both backend and frontend simultaneously:
+
+**Terminal 1 (Backend)**:
+```bash
+cd services/application-management-service
+./gradlew bootRun
+```
+
+**Terminal 2 (Frontend)**:
+```bash
+cd ui/application-management-ui
+npm run dev
+```
+
+Then access the UI at http://localhost:5173
 
 ## API Endpoints
 
@@ -118,10 +179,12 @@ Import `services/application-management-service/postman/Application-Management-A
 
 | Document | Purpose |
 |----------|---------|
-| `composition.md` | Architecture & service design |
-| `roadmap.md` | 5-week development timeline |
-| `techstack.md` | Technology stack & dependencies |
-| `docs/api/application-management-api.md` | Complete API specification |
+| `composition.md` | Architecture & service design (frontend + backend) |
+| `roadmap.md` | Development timeline (16 weeks) |
+| `techstack.md` | Technology stack & dependencies (React + Spring Boot) |
+| `docs/api/application-management-api.md` | Backend API specification |
+| `docs/api/payment-gateway-api.md` | Payment Gateway API specification |
+| `docs/ui/application-management-ui.md` | Frontend UI specification |
 | `IMPLEMENTATION_CHECKLIST.md` | Development task tracking |
 
 ## AI-Assisted Development
@@ -132,7 +195,7 @@ This project was built using an AI coding assistant (Windsurf Cascade) following
 
 Use this prompt pattern when starting a new phase with an AI assistant:
 
-> Let's start with phase **N** from roadmap. Ensure you read through all the md files (composition, techstack, readme, implementation_checklist, application-management-api.md). Request for acknowledgement before applying changes. If you have any open questions, please ask.
+> Let's start with phase **N** from roadmap. Ensure you read through all the md files (composition, techstack, readme, implementation_checklist, payment-gateway-api.md). Request for acknowledgement before applying changes. If you have any open questions, please ask.
 
 This prompt ensures the AI:
 1. **Reads all specs first** before writing any code
